@@ -295,7 +295,7 @@ if (canvas.getContext) {
     var s10 = function() { //island
         startSystem(0, 0, '#000000', '#ff5555', 0, 5, 1,
                     "F+F+F+F", {'F':'F+F-F-FF+F+F-F'}, 6, 90,
-                    0, 2, 1, 1, 1, s11)();
+                    0, 2, 1, 1, 1, s1)();
     };
     
     var s11 = function() { //tree
