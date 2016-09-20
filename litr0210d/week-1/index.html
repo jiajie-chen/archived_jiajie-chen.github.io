@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!-- saved from url=(0032)http://nickm.com/poems/lede.html -->
+<html><script type="text/javascript">window["_gaUserPrefs"] = { ioo : function() { return true; } }</script><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<style type="text/css">
+/* <![CDATA[ */
+body {
+ background: #fff;
+ color: #000;
+ margin: 0 0 0 24pt;
+ font-family: Optima, sans-serif;
+ font-size: 13pt;
+}
+a {
+ color: #117;
+ text-decoration: none;
+}
+/* ]]> */
+</style>
+<script type="text/javascript">
+var t = 0;
+var absurd_situation = ["sitting on the toilet", "being strip-searched in the airport", "failing to hail a cab", "renting formal clothes", "stepping over a street pizza", "double-parking", "entering a convenience store", "watching happy-slapping videos online", "selecting produce", "burning trash", "buying lottery tickets", "laundering money", "laundering clothes", "gazing into the void"];
+var sad_descriptor = ["a jobless", "a forlorn", "a clumsy", "an antisocial", "a fretful", "a hirsute", "an unstylish", "a cockeyed", "an overly trusting", "an almost illiterate"];
+var nationality = ["purple", "four-dimensional", "divine", "miniature"];
+var man_or_woman = ["giraffe", "robot", "carnivorous plant", "Deadhead", "ninja", "Professor Snape", "Frankie Muniz", "turnip", "skyscraper", "microbe", "pirate king"];
+var question_start = ["Why not dress as a", "Why not team up with this"];
+var silly_character = ["person", "trash-can", "teenager", "senior citizen", "Benjamin Franklin"];
+var interact_with = ["do good deeds for", "interrogate", "evangelize", "wink at", "dance for", "serenade", "vigorously encourage", "wave to", "pray with", "handle snakes with", "soothe", "laugh at", "imitate"];
+var people = ["people", "aliens", "puppies", "ghosts"];
+function rand_range(max) {
+    "use strict";
+    return Math.floor(Math.random() * (max + 1));
+}
+function fresh(array) {
+    "use strict";
+    var index = rand_range(array.length - 2) + 1, selection = array[index];
+    array[index] = array[0];
+    array[0] = selection;
+    return selection;
+}
+function story() {
+    "use strict";
+    var last, lede, main = document.getElementById('main');
+    if (t <= 12) {
+        t += 1;
+    } else {
+        main.removeChild(document.getElementById('main').firstChild);
+    }
+    last = document.createElement('div');
+    last.appendChild(document.createElement('br'));
+    lede = "While " + fresh(absurd_situation) + ", " + fresh(sad_descriptor) + " " + fresh(nationality) + " " + fresh(man_or_woman) + " had an idea: " + fresh(question_start) + " " + fresh(silly_character) + " and " + fresh(interact_with) + " " + fresh(people) + "?";
+    last.appendChild(document.createTextNode(lede));
+    main.appendChild(last);
+}
+function produce_stories() {
+    "use strict";
+    story();
+    setInterval(story, 3500);
+}</script>
+  <title>Lede</title>
+</head>
+<body onload="produce_stories();">
+<div style="float:right; background:#999; margin-left:6px; border-left:thin #000 solid; border-bottom:thin #000 solid; padding:6px">
+<div><br>Lede<br>Based on a <a href="http://www.newser.com/story/157857/scotlands-new-hero-is-man-in-giraffe-suit.html">True Story</a><br><a href="http://nickm.com/">Nick Montfort</a></div>
+</div>
+<div id="main"></div>
+
+
+
+
+</body></html>
