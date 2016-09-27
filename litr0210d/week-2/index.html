@@ -13,11 +13,61 @@
 		margin-left: auto;
 		margin-right: auto;
 	}
+
+	#output-div {
+		position: relative;
+		top: -50px;
+		padding: 15px;
+		margin: 50px 0 3em;
+		text-align: center;
+		color: #fff;
+		background: #333;
+		-webkit-border-radius: 10px;
+		-moz-border-radius: 10px;
+		border-radius: 10px;
+	}
+
+	#output-div:before {
+		content: "";
+		position: absolute;
+		top: -50px;
+		left: 50%;
+		width: 100px;
+		height: 50px;
+		margin: 0 0 0 -50px;
+		background: #333;
+	}
+
+	#output-div:after {
+		content: "";
+		position: absolute;
+		top: -50px;
+		left: 0;
+		width: 50%;
+		height: 50px;
+		background: #fff;
+		-webkit-border-bottom-right-radius: 100px;
+		-moz-border-radius-bottomright: 100px;
+		border-bottom-right-radius: 100px;
+	}
+
+	#output-div > :first-child:before {
+		content: "";
+		position: absolute;
+		top: -50px;
+		right: 0;
+		width: 50%;
+		height: 50px;
+		background: #fff;
+		-webkit-border-bottom-left-radius: 100px;
+		-moz-border-radius-bottomleft: 100px;
+		border-bottom-left-radius: 100px;
+	}
 </style>
 
 <div class="center">
 <img onclick="generate()" src="../images/mustache.png" />
-<h1 id="output">Click moustache to generate</h1>
+<div id="output-div"> <h1 id="output">Click moustache to generate</h1> </div>
 <!--<button onclick="generate()">Generate</button>-->
 </div>
 
