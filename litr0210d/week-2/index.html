@@ -1,15 +1,72 @@
 <script src="../lib/tracery.js"></script>
 <script src="../lib/mousetrap.min.js"></script>
 <script src="../lib/jquery-1.11.1.min.js"></script>
-<h1>Text will go here</h1>
-<button onclick="generate()">Generate</button>
+<style type="text/css">
+	.center {
+		width: 800px;
+		margin-left: auto;
+		margin-right: auto;
+		text-align: center;
+	}
+
+	.center * {
+		margin-left: auto;
+		margin-right: auto;
+	}
+</style>
+
+<div class="center">
+<img onclick="generate()" src="../images/mustache.png" />
+<h1 id="output">Click moustache to generate</h1>
+<!--<button onclick="generate()">Generate</button>-->
+</div>
+
 <script>
 var grammarObj = {
-	"sentence": ["ayy lmao"]
+	"sentence": ["#hipsterintro# #hipsterexplanation# #hipsterend#"],
+
+	"adjectivechain": ["#adjective#, #adjectivechain#", "#adjective#"],
+	"adjective": ["extreme", "fancy", "red", "cylindrical", "dangerous", "bitter", "ethical", "fatal", "frugal", "gloomy", "grumpy", "healthy", "lighthearted", "imaginary", "impartial", "sinful", "slimy", "secret", "vague", "zealous", "wasteful", "unaware", "tedious", "variable", "virtual", "wicked", "wrathful", "starry", "sarcastic", "green", "responsible", "solid", "nautical", "transparent"],
+	"day": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday", "Caturday", "April Fools", "Labor Day", "President's Day", "Halloween"],
+	"numeric": ["#number#.#number#", "only #number#", "just #number#", "#number# and a half"],
+	"number": ["2", "32", "69", "9", "102", "82", "71", "3", "16", "76", "11", "6"],
+	"start": ["first", "to start", "starting off", "at it's most basic", "in the first place"],
+	"middle": ["next,", "then", "and now,", "more over,", "in a like manner"],
+	"end": ["finally,", "the last thing to do is", "lastly,"],
+	"obligation": ["absolutely must", "can't forget to", "have to", "gotta", "cannot"],
+	"adverb": ["quietly", "cylindrically", "sinfully", "tediously", "diligently", "quickly", "sneakily", "ironically"],
+	"verb": ["#startverb##endverb#"],
+	"startverb": ["fl", "tr", "x", "w", "q", "ch", "gr", "th", "pl"],
+	"endverb": ["oot", "eit", "aus", "iou", "ert", "iurt", "aed"],
+	"subject": ["rock", "long-boy", "meme", "emoji", "iPhone", "log", "tofu", "coffee"],
+
+	"hipsterintro": ["#oldthing.capitalize#. #newthing.capitalize#."],
+	"oldthing": ["#obscuretopic# is so mainstream now", "no one does #obscuretopic# anymore", "everyone knows about #obscuretopic# now", "#obscuretopic# is so last season", "even my mom has heard about #obscuretopic#"],
+	"newthing": ["the new thing is #obscuretopic#", "#obscuretopic# is the newest thing", "#obscuretopic# is the latest trend", "you've probably never heard of #obscuretopic#", "#obscuretopic#, now that's cool"],
+	"obscuretopic": ["#adjectivechain# #obscureaction#"],
+	"obscureaction": ["planking", "snorkeling", "parkour", "computer programming", "couponing", "drawing", "drama", "baton twirling", "embroidery", "glassblowing", "knitting", "ice skating", "scrapbooking", "origami", "lucid dreaming", "magic", "macrame"],
+
+	"hipsterexplanation": ["#explanation.capitalize#.", "#directions.capitalize#.", "#explanation.capitalize#. #directions.capitalize#."],
+	"explanation": ["it's where you #mainaction#"],
+	"directions": ["#startinstructions.capitalize#. #middleinstructions.capitalize#. #endinstructions.capitalize#", "#startinstructions.capitalize#. #endinstructions.capitalize#"],
+	"startinstructions": ["#start#, you #mainaction#"],
+	"middleinstructions": ["#middlebase.capitalize#", "#middlebase.capitalize#. #middleinstructions.capitalize#"],
+	"middlebase": ["#middle# you #obligation# #mainaction#"],
+	"endinstructions": ["#end# #mainaction#"],
+	"mainaction": ["#action#", "#adverb# #action#"],
+	"action": ["#verb# some #adjectivechain# #subject.s#", "#verb# all #adjectivechain# #subject.s#", "#verb# any #adjectivechain# #subject.s#"],
+
+	"hipsterend": ["#rarity.capitalize#, #intheknow#. #expert.capitalize#."],
+	"rarity": ["it's banned in #numeric# countries", "#numeric# people have survived doing it", "#numeric# people have died doing it", "it's extremely dangerous", "Donald Trump denounced it", "no one knows where it started", "it's considered a schedule #number# drug", "it's only legal on #day#", "doing it will make you trip for #numeric# days"],
+	"intheknow": ["but I watched a Vice documentary about the subject", "but there's a place downtown that hosts it every #day#", "but I #knowaguy# who can get us the resources"],
+	"knowaguy": ["know a guy #knowsaguy#", "know a guy"],
+	"knowsaguy": ["#knowsaguybase# #knowsaguy#", "#knowsaguybase#"],
+	"knowsaguybase": ["who knows a guy", "who's roommates with someone", "who has a boyfriend", "who found a person", "who has a neighbor"],
+	"expert": ["I'm practically a expert it in", "I've done it #numeric# times already", "no one except me really understands it", "I'm in a group that does it every #day#"]
 };
 var grammar = tracery.createGrammar(grammarObj)
 function generate(){
 	var t = grammar.flatten("#sentence#");
-	$('h1').text(t);
+	$('#output').text(t);
 };
 </script>
