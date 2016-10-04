@@ -1,0 +1,80 @@
+<style type="text/css">
+	p {
+		opacity: 0;
+	}
+	p.fade {
+		-webkit-animation: fade 2s;
+		animation: fade 2s;
+		opacity: 1;
+	}
+	/* -fail- */
+	@-webkit-keyframes fade {
+		from {opacity: 0}
+		to {opacity: 1}
+	}@keyframes fade {
+		from {opacity: 0}
+		to {opacity: 1}
+	}
+
+	img {
+		width: 100%;
+	}
+	.center {
+		width: 500px;
+		margin-left: auto;
+		margin-right: auto;
+	}
+</style>
+
+<script src="../lib/jquery-1.11.1.min.js"></script>
+<script src="../lib/markov.js"></script>
+<script>
+var beeGen = new MarkovGeneratorWord(3,50)
+$.get("bee-movie.txt", function(text) {
+     beeGen.feed(text);
+});
+$.get("the-wicker-man.txt", function(text) {
+     beeGen.feed(text);
+});
+
+var characterGen = new MarkovGenerator(4,18," ");
+$.get("bee-characters.txt", function(text) {
+     var movieCharacters = text.split(/\n/).join(" ");
+     characterGen.feed(movieCharacters);
+});
+$.get("wicker-man-characters.txt", function(text) {
+     var movieCharacters = text.split(/\n/).join(" ");
+     characterGen.feed(movieCharacters);
+});
+
+function generate(){
+	var beeScript = beeGen.generate();
+	// get a random amount of sentences to use per line
+	var numSentences = randInt(1,8);
+	beeScript = beeScript.split(/([^!.?]+[!.?]+)/)
+		.map(function(str) { return str.trim(); })
+		.filter(function(str) { return str.length > 3; });
+	//console.log(beeScript);
+	beeScript = beeScript.slice(0, Math.min(numSentences, beeScript.length));
+	//console.log(beeScript);
+	// generate new line from random first sentences
+	beeLine = beeScript.join(" ");
+	beeLine = beeLine.charAt(0).toUpperCase() + beeLine.slice(1);
+
+	// get a random character from the movies
+	var character = characterGen.generate();
+	console.log(character);
+	character = character.split(" ").slice(0, randInt(1,3)).join(" ");
+	var line = $("<p><b>"+character+":</b> "+beeLine+"</p>");
+	$('#main').prepend(line);
+	line.addClass("fade");
+}
+
+function randInt(min, max){
+	return Math.floor(Math.random() * (max+1-min)) + min;
+}
+</script>
+
+<button onclick="generate()">Generate</button>
+<div id="main"></div>
+<div class="center"><img src="../images/wicker-movie.jpg" /></div>
