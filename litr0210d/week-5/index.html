@@ -211,16 +211,9 @@
 		var elOffset = el.offset().top;
 		var elHeight = el.height();
 		var windowHeight = window.innerHeight;
-		var offset;
-
-		if (elHeight < windowHeight) {
-			offset = elOffset - ((windowHeight / 2) - (elHeight / 2));
-		}
-		else {
-			offset = elOffset;
-		}
-
-		var windowOffset = $(window).scrollTop();
+		
+		var offset = elOffset+elHeight;
+		var windowOffset = $(window).scrollTop()+windowHeight;
 		return (offset+5 <= windowOffset) || (offset-5 <= windowOffset);
 	}
 
@@ -242,20 +235,18 @@
 	}
 	
 	$("#up").click(function() {
-		if (currMeme == 1) {
-			return;
+		if (currMeme > 1) {
+			currMeme--;
 		}
 
-		currMeme--;
 		scrollToCenter("#meme"+currMeme);
 	});
 
 	$("#down").click(function() {
-		if (currMeme == 5) {
-			return;
+		if (currMeme < 5) {
+			currMeme++;
 		}
-		
-		currMeme++;
+
 		scrollToCenter("#meme"+currMeme);
 	});
 
