@@ -1,257 +1,13 @@
 <head>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-	<script type="text/javascript">
-		function getCanvasPixels(canvasElement) {
-			var context = canvasElement.getContext("2d");
-			var w = canvasElement.width;
-			var h = canvasElement.height;
-
-			var rawData = context.getImageData(0, 0, w, h);
-			var pixelData = {'width':rawData.width, 'height':rawData.height, 'data':[]};
-			for (let i = 0; i < (rawData.width * rawData.height * 4); i += 4) {
-				pixelData.data.push({
-					'red': rawData.data[i+0],
-					'green': rawData.data[i+1],
-					'blue': rawData.data[i+2],
-					'alpha': rawData.data[i+3]
-				});
-			}
-
-			return pixelData;
-		}
-
-		function putCanvasPixels(canvasElement, pixelData) {
-			var context = canvasElement.getContext("2d");
-			var w = pixelData.width;
-			var h = pixelData.height;
-
-			var rawData = context.getImageData(0, 0, w, h);
-			for (let i = 0; i < (rawData.width * rawData.height); i += 1) {
-				rawData.data[(i*4)+0] = pixelData.data[i].red;
-				rawData.data[(i*4)+1] = pixelData.data[i].green;
-				rawData.data[(i*4)+2] = pixelData.data[i].blue;
-				rawData.data[(i*4)+3] = pixelData.data[i].alpha;
-			}
-
-			context.putImageData(rawData, 0, 0);
-		}
-
-		function compareByBrightness(pixelA, pixelB) {
-			var a = pixelA.red + pixelA.green + pixelA.blue;
-			var b = pixelB.red + pixelB.green + pixelB.blue;
-			return a-b;
-		}
-
-		function sortNPixels(pixelData, comparator, numPx) {
-			for (let i = 0; i < pixelData.data.length - numPx; i += numPx) {
-				var slice = [];
-				for (let j = 0; j < numPx; j++) {
-					slice.push(pixelData.data[i+j]);
-				}
-
-				slice.sort(comparator);
-				for (let j = 0; j < numPx; j++) {
-					pixelData.data[i+j] = slice[j];
-				}
-			}
-		}
-
-		function isPixelBlack(threshold) {
-			return function(x, y, pixelData) {
-				var px = pixelData.data[y*pixelData.width + x];
-				var bright = px.red + px.green + px.blue;
-				return bright < (threshold * 3);
-			};
-		}
-
-		function isPixelWhite(threshold) {
-			return function(x, y, pixelData) {
-				var px = pixelData.data[y*pixelData.width + x];
-				var bright = px.red + px.green + px.blue;
-				return bright > (threshold * 3);
-			};
-		}
-
-		function sortPixelRow(pixelData, comparator, startPred, stopPred) {
-			for (let i = 0; i < pixelData.height; i++) {
-				let j = 0;
-				while (j < pixelData.width && !startPred(j, i, pixelData)) {
-					j++;
-				}
-
-				var start = j;
-				var slice = [];
-				while (j < pixelData.width && !stopPred(j, i, pixelData)) {
-					slice.push(pixelData.data[i*pixelData.width + j]);
-					j++;
-				}
-
-				slice.sort(comparator);
-				for (let k = 0; k < slice.length; k++) {
-					pixelData.data[i*pixelData.width + start+k] = slice[k];
-				}
-			}
-		}
-
-		function sortPixelColumn(pixelData, comparator, startPred, stopPred) {
-			for (let i = 0; i < pixelData.width; i++) {
-				let j = 0;
-				while (j < pixelData.height && !startPred(i, j, pixelData)) {
-					j++;
-				}
-
-				var start = j;
-				var slice = [];
-				while (j < pixelData.height && !stopPred(i, j, pixelData)) {
-					slice.push(pixelData.data[j*pixelData.width + i]);
-					j++;
-				}
-
-				slice.sort(comparator);
-				for (let k = 0; k < slice.length; k++) {
-					pixelData.data[(start+k)*pixelData.width + i] = slice[k];
-				}
-			}
-		}
-
-		function sortPixelRowReverse(pixelData, comparator, startPred, stopPred) {
-			for (let i = pixelData.height - 1; i >= 0; i--) {
-				let j = pixelData.width - 1;
-				while (j >= 0 && !startPred(j, i, pixelData)) {
-					j--;
-				}
-
-				var start = j;
-				var slice = [];
-				while (j >= 0 && !stopPred(j, i, pixelData)) {
-					slice.push(pixelData.data[i*pixelData.width + j]);
-					j--;
-				}
-
-				slice.sort(comparator);
-				for (let k = 0; k < slice.length; k++) {
-					pixelData.data[i*pixelData.width + start-k] = slice[k];
-				}
-			}
-		}
-
-		function sortPixelColumnReverse(pixelData, comparator, startPred, stopPred) {
-			for (let i = pixelData.width - 1; i >= 0; i--) {
-				let j = pixelData.height - 1;
-				while (j >= 0 && !startPred(i, j, pixelData)) {
-					j--;
-				}
-
-				var start = j;
-				var slice = [];
-				while (j >= 0 && !stopPred(i, j, pixelData)) {
-					slice.push(pixelData.data[j*pixelData.width + i]);
-					j--;
-				}
-
-				slice.sort(comparator);
-				for (let k = 0; k < slice.length; k++) {
-					pixelData.data[(start-k)*pixelData.width + i] = slice[k];
-				}
-			}
-		}
-
-		function offsetCoord(origin, offset, bound) {
-			var range = bound;
-			var newOrigin = origin + offset;
-
-			if (newOrigin < 0) {
-				newOrigin += range * Math.floor((-newOrigin) / range + 1);
-			}
-
-			return (newOrigin) % range;
-		}
-
-		function offsetChannels(pixelData, redOffsetX, redOffsetY, greenOffsetX, greenOffsetY, blueOffsetX, blueOffsetY) {
-			var red = [];
-			var green = [];
-			var blue = [];
-
-			for (let i = 0; i < pixelData.data.length; i++) {
-				red.push(pixelData.data[i].red);
-				green.push(pixelData.data[i].green);
-				blue.push(pixelData.data[i].blue);
-			}
-
-			for (let x = 0; x < pixelData.width; x++)
-			for (let y = 0; y < pixelData.height; y++) {
-				let redIdx =
-					offsetCoord(y, -redOffsetY, pixelData.height) * pixelData.width +
-					offsetCoord(x, -redOffsetX, pixelData.width);
-				let greenIdx =
-					offsetCoord(y, -greenOffsetY, pixelData.height) * pixelData.width +
-					offsetCoord(x, -greenOffsetX, pixelData.width);
-				let blueIdx =
-					offsetCoord(y, -blueOffsetY, pixelData.height) * pixelData.width +
-					offsetCoord(x, -blueOffsetX, pixelData.width);
-
-				var px = pixelData.data[y*pixelData.width + x];
-				px.red = red[redIdx];
-				px.green = green[greenIdx];
-				px.blue = blue[blueIdx];
-			}
-
-			
-		}
-
-		function randInt(min, max){
-			return Math.floor(Math.random() * (max+1-min)) + min;
-		}
-
-		function datamosh(canvasId, mosh) {
-			var canvas = document.getElementById(canvasId);
-			var px = getCanvasPixels(canvas);
-
-			if (mosh === 0) {
-				sortNPixels(px, compareByBrightness, 20);
-			} else if (mosh === 1) {
-				var rand = randInt(-2, 8);
-				if (rand === 0) {
-					sortPixelRow(px, compareByBrightness, isPixelWhite(randInt(150, 200)), isPixelBlack(randInt(10, 60)));
-				} else if (rand === 1) {
-					sortPixelColumn(px, compareByBrightness, isPixelWhite(randInt(150, 200)), isPixelBlack(randInt(10, 60)));
-				} else if (rand === 2) {
-					sortPixelRowReverse(px, compareByBrightness, isPixelWhite(randInt(150, 200)), isPixelBlack(randInt(10, 60)));
-				} else if (rand === 3) {
-					sortPixelColumnReverse(px, compareByBrightness, isPixelWhite(randInt(150, 200)), isPixelBlack(randInt(10, 60)));
-				} else if (rand < 0) {
-					offsetChannels(px,
-						randInt(-5, 5), randInt(-5, 5),
-						randInt(-5, 5), randInt(-5, 5),
-						randInt(-5, 5), randInt(-5, 5));
-				}
-			}
-
-			putCanvasPixels(canvas, px);
-		}
-
-		function loadImageToCanvas(canvasId, imageSource) {
-			var image1 = new Image();
-			image1.onload = function () {
-				var c = document.getElementById(canvasId);
-				c.width = image1.width;
-				c.height = image1.height;
-				c.style.width = image1.width;
-				c.style.height = image1.height;
-
-				c.getContext("2d").drawImage(image1, 0, 0);
-			};
-			image1.src = imageSource;
-		}
-
-		loadImageToCanvas('image1', 'meme1.jpg');
-		loadImageToCanvas('image2', 'meme2.jpg');
-		loadImageToCanvas('image3', 'meme3.jpg');
-		loadImageToCanvas('image4', 'meme4.jpg');
-		loadImageToCanvas('image5', 'meme5.jpg');
-	</script>
 
 	<style type="text/css">
+		.main-nav {
+			z-index: 999;
+			margin-top: 20px;
+			transform: translateX(calc(-100% - 20px));
+		}
+
 		.meme {
 			position: relative; 
 			width: 100%;
@@ -278,61 +34,436 @@
 			font-size: 24px;
 		}
 
-		#meme-text-2 {
+		#meme-text-2-1 {
 			background-color: black;
 			color: white;
 
 			position: absolute;
-			top: 40%;
+			top: 20%;
 			left: 3%;
 			width: 40%;
 
 			text-align: left;
 			font-size: 18px;
 		}
+
+		#meme-text-2-2 {
+			background-color: black;
+			color: white;
+
+			position: absolute;
+			top: 70%;
+			left: 20%;
+			width: 40%;
+
+			text-align: left;
+			font-size: 18px;
+		}
+
+		#meme-text-3 {
+			color: white;
+			text-shadow:
+				2px 0 #000,
+				-2px 0 #000,  
+				0 -2px #000,
+				0 2px #000,
+				2px 2px #000,
+				-2px -2px #000,  
+				2px -2px #000,
+				-2px 2px #000;
+
+			position: absolute;
+			top: 0;
+			left: 5%;
+			width: 90%;
+
+			text-align: left;
+			font-size: 120px;
+		}
 	</style>
 </head>
 
 <body>
 <div class="container">
-	<div class="col-md-3">
-		<h1 class="text-center">House of Fragile Memes</h1>
-		<br/>
-		<h5 class="text-right">please don't touch</h5>
-		<br/>
-		<h5 class="text-left">caution: breaks easily</h5>
+	<div class="main-nav btn-group-vertical btn-group-lg affix">
+		<button type="button" id="up" class="btn btn-default" aria-label="previous">
+			<span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span>
+		</button>
+		<button type="button" id="down" class="btn btn-default" aria-label="next">
+			<span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span>
+		</button>
+	</div>
+</div>
+
+<div class="container">
+	<div class="col-xs-3">
+		<div class="row">
+			<h1 class="text-center">House of Fragile Memes</h1>
+			<br/>
+			<h5 class="text-right">please don't touch</h5>
+			<br/>
+			<h5 class="text-left">caution: breaks easily</h5>
+		</div>
 	</div>
 
-	<div class="col-md-8 col-md-offset-1">
-		<div class="meme" onmousemove="datamosh('image1', 1)" onclick="datamosh('image1', 0)">
+	<div class="col-xs-8 col-xs-offset-1">
+		<div class="meme row" id="meme1" onmousemove="datamosh('image1')" ontouch="datamosh('image1')">
 			<canvas id="image1"></canvas>
 			<span id="meme-text-1">Archaeologist examines vintage 18th century meme, 1970</span>
 		</div>
 
 		<br/>
 
-		<div class="meme" onmousemove="datamosh('image2', 1)" onclick="datamosh('image2', 0)">
+		<div class="meme row" id="meme2" onmousemove="datamosh('image2')" ontouch="datamosh('image2')">
 			<canvas id="image2"></canvas>
-			<span id="meme-text-2">Do you realize that if you fall into a black hole, you will see the entire future of the Universe unfold in front of you in a matter of moments and you will emerge into another space-time created by the singularity of the black hole you just fell into?</span>
+			<span id="meme-text-2-1">you were so eager for the unknown, so determined to find perfection, you didn't realise it was unattainable</span>
+			<span id="meme-text-2-2">you asked for more than you needed, and ended up with nothing: your greediness resulted in your death</span>
 		</div>
 
 		<br/>
 
-		<div class="meme" onmousemove="datamosh('image3', 1)" onclick="datamosh('image3', 0)">
+		<div class="meme row" id="meme3" onmousemove="datamosh('image3')" ontouch="datamosh('image3')">
 			<canvas id="image3"></canvas>
+			<span id="meme-text-3">SOCIAL MEDIA WAS A MISTAKE</span>
 		</div>
 
 		<br/>
 
-		<div class="meme" onmousemove="datamosh('image4', 1)" onclick="datamosh('image4', 0)">
+		<div class="meme row" id="meme4" onmousemove="datamosh('image4')" ontouch="datamosh('image4')">
 			<canvas id="image4"></canvas>
 		</div>
 
 		<br/>
 
-		<div class="meme" onmousemove="datamosh('image5', 1)" onclick="datamosh('image5', 0)">
+		<div class="meme row" id="meme5" onmousemove="datamosh('image5')" ontouch="datamosh('image5')">
 			<canvas id="image5"></canvas>
 		</div>
 	</div>
 </div>
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+<script type="text/javascript">
+	var currMeme = 1;
+
+	function isScrolledTo(ele) {
+		var el = $(ele);
+		var elOffset = el.offset().top;
+		var elHeight = el.height();
+		var windowHeight = window.innerHeight;
+		var offset;
+
+		if (elHeight < windowHeight) {
+			offset = elOffset - ((windowHeight / 2) - (elHeight / 2));
+		}
+		else {
+			offset = elOffset;
+		}
+
+		var windowOffset = $(window).scrollTop();
+		return (offset+5 <= windowOffset) || (offset-5 <= windowOffset);
+	}
+
+	function scrollToCenter(ele) {
+		var el = $(ele);
+		var elOffset = el.offset().top;
+		var elHeight = el.height();
+		var windowHeight = window.innerHeight;
+		var offset;
+
+		if (elHeight < windowHeight) {
+			offset = elOffset - ((windowHeight / 2) - (elHeight / 2));
+		}
+		else {
+			offset = elOffset;
+		}
+
+		$("html, body").animate({scrollTop:offset}, 700);
+	}
+	
+	$("#up").click(function() {
+		if (currMeme == 1) {
+			return;
+		}
+
+		currMeme--;
+		scrollToCenter("#meme"+currMeme);
+	});
+
+	$("#down").click(function() {
+		if (currMeme == 5) {
+			return;
+		}
+		
+		currMeme++;
+		scrollToCenter("#meme"+currMeme);
+	});
+
+	$(window).scroll(function(){
+		if (isScrolledTo("#meme5")) {
+			currMeme = 5;
+		} else if (isScrolledTo("#meme4")) {
+			currMeme = 4;
+		} else if (isScrolledTo("#meme3")) {
+			currMeme = 3;
+		} else if (isScrolledTo("#meme2")) {
+			currMeme = 2;
+		} else if (isScrolledTo("#meme1")) {
+			currMeme = 1;
+		}
+	});
+</script>
+
+<script type="text/javascript">
+	function getCanvasPixels(canvasElement) {
+		var context = canvasElement.getContext("2d");
+		var w = canvasElement.width;
+		var h = canvasElement.height;
+
+		var rawData = context.getImageData(0, 0, w, h);
+		var pixelData = {'width':rawData.width, 'height':rawData.height, 'data':[]};
+		for (let i = 0; i < (rawData.width * rawData.height * 4); i += 4) {
+			pixelData.data.push({
+				'red': rawData.data[i+0],
+				'green': rawData.data[i+1],
+				'blue': rawData.data[i+2],
+				'alpha': rawData.data[i+3]
+			});
+		}
+
+		return pixelData;
+	}
+
+	function putCanvasPixels(canvasElement, pixelData) {
+		var context = canvasElement.getContext("2d");
+		var w = pixelData.width;
+		var h = pixelData.height;
+
+		var rawData = context.getImageData(0, 0, w, h);
+		for (let i = 0; i < (rawData.width * rawData.height); i += 1) {
+			rawData.data[(i*4)+0] = pixelData.data[i].red;
+			rawData.data[(i*4)+1] = pixelData.data[i].green;
+			rawData.data[(i*4)+2] = pixelData.data[i].blue;
+			rawData.data[(i*4)+3] = pixelData.data[i].alpha;
+		}
+
+		context.putImageData(rawData, 0, 0);
+	}
+
+	function compareByBrightness(pixelA, pixelB) {
+		var a = pixelA.red + pixelA.green + pixelA.blue;
+		var b = pixelB.red + pixelB.green + pixelB.blue;
+		return a-b;
+	}
+
+	function sortNPixels(pixelData, comparator, numPx) {
+		for (let i = 0; i < pixelData.data.length - numPx; i += numPx) {
+			var slice = [];
+			for (let j = 0; j < numPx; j++) {
+				slice.push(pixelData.data[i+j]);
+			}
+
+			slice.sort(comparator);
+			for (let j = 0; j < numPx; j++) {
+				pixelData.data[i+j] = slice[j];
+			}
+		}
+	}
+
+	function isPixelBlack(threshold) {
+		return function(x, y, pixelData) {
+			var px = pixelData.data[y*pixelData.width + x];
+			var bright = px.red + px.green + px.blue;
+			return bright < (threshold * 3);
+		};
+	}
+
+	function isPixelWhite(threshold) {
+		return function(x, y, pixelData) {
+			var px = pixelData.data[y*pixelData.width + x];
+			var bright = px.red + px.green + px.blue;
+			return bright > (threshold * 3);
+		};
+	}
+
+	function sortPixelRow(pixelData, comparator, startPred, stopPred) {
+		for (let i = 0; i < pixelData.height; i++) {
+			let j = 0;
+			while (j < pixelData.width && !startPred(j, i, pixelData)) {
+				j++;
+			}
+
+			var start = j;
+			var slice = [];
+			while (j < pixelData.width && !stopPred(j, i, pixelData)) {
+				slice.push(pixelData.data[i*pixelData.width + j]);
+				j++;
+			}
+
+			slice.sort(comparator);
+			for (let k = 0; k < slice.length; k++) {
+				pixelData.data[i*pixelData.width + start+k] = slice[k];
+			}
+		}
+	}
+
+	function sortPixelColumn(pixelData, comparator, startPred, stopPred) {
+		for (let i = 0; i < pixelData.width; i++) {
+			let j = 0;
+			while (j < pixelData.height && !startPred(i, j, pixelData)) {
+				j++;
+			}
+
+			var start = j;
+			var slice = [];
+			while (j < pixelData.height && !stopPred(i, j, pixelData)) {
+				slice.push(pixelData.data[j*pixelData.width + i]);
+				j++;
+			}
+
+			slice.sort(comparator);
+			for (let k = 0; k < slice.length; k++) {
+				pixelData.data[(start+k)*pixelData.width + i] = slice[k];
+			}
+		}
+	}
+
+	function sortPixelRowReverse(pixelData, comparator, startPred, stopPred) {
+		for (let i = pixelData.height - 1; i >= 0; i--) {
+			let j = pixelData.width - 1;
+			while (j >= 0 && !startPred(j, i, pixelData)) {
+				j--;
+			}
+
+			var start = j;
+			var slice = [];
+			while (j >= 0 && !stopPred(j, i, pixelData)) {
+				slice.push(pixelData.data[i*pixelData.width + j]);
+				j--;
+			}
+
+			slice.sort(comparator);
+			for (let k = 0; k < slice.length; k++) {
+				pixelData.data[i*pixelData.width + start-k] = slice[k];
+			}
+		}
+	}
+
+	function sortPixelColumnReverse(pixelData, comparator, startPred, stopPred) {
+		for (let i = pixelData.width - 1; i >= 0; i--) {
+			let j = pixelData.height - 1;
+			while (j >= 0 && !startPred(i, j, pixelData)) {
+				j--;
+			}
+
+			var start = j;
+			var slice = [];
+			while (j >= 0 && !stopPred(i, j, pixelData)) {
+				slice.push(pixelData.data[j*pixelData.width + i]);
+				j--;
+			}
+
+			slice.sort(comparator);
+			for (let k = 0; k < slice.length; k++) {
+				pixelData.data[(start-k)*pixelData.width + i] = slice[k];
+			}
+		}
+	}
+
+	function offsetCoord(origin, offset, bound) {
+		var range = bound;
+		var newOrigin = origin + offset;
+
+		if (newOrigin < 0) {
+			newOrigin += range * Math.floor((-newOrigin) / range + 1);
+		}
+
+		return (newOrigin) % range;
+	}
+
+	function offsetChannels(pixelData, redOffsetX, redOffsetY, greenOffsetX, greenOffsetY, blueOffsetX, blueOffsetY) {
+		var red = [];
+		var green = [];
+		var blue = [];
+
+		for (let i = 0; i < pixelData.data.length; i++) {
+			red.push(pixelData.data[i].red);
+			green.push(pixelData.data[i].green);
+			blue.push(pixelData.data[i].blue);
+		}
+
+		for (let x = 0; x < pixelData.width; x++)
+		for (let y = 0; y < pixelData.height; y++) {
+			let redIdx =
+				offsetCoord(y, -redOffsetY, pixelData.height) * pixelData.width +
+				offsetCoord(x, -redOffsetX, pixelData.width);
+			let greenIdx =
+				offsetCoord(y, -greenOffsetY, pixelData.height) * pixelData.width +
+				offsetCoord(x, -greenOffsetX, pixelData.width);
+			let blueIdx =
+				offsetCoord(y, -blueOffsetY, pixelData.height) * pixelData.width +
+				offsetCoord(x, -blueOffsetX, pixelData.width);
+
+			var px = pixelData.data[y*pixelData.width + x];
+			px.red = red[redIdx];
+			px.green = green[greenIdx];
+			px.blue = blue[blueIdx];
+		}
+
+		
+	}
+
+	function randInt(min, max){
+		return Math.floor(Math.random() * (max+1-min)) + min;
+	}
+
+	function datamosh(canvasId) {
+		var canvas = document.getElementById(canvasId);
+		var px = getCanvasPixels(canvas);
+
+		var mosh = randInt(-1,12);
+		if (mosh < 0) {
+			sortNPixels(px, compareByBrightness, 20);
+		} else if (mosh > 4) {
+			var rand = randInt(-2, 3);
+			if (rand === 0) {
+				sortPixelRow(px, compareByBrightness, isPixelWhite(randInt(150, 200)), isPixelBlack(randInt(10, 60)));
+			} else if (rand === 1) {
+				sortPixelColumn(px, compareByBrightness, isPixelWhite(randInt(150, 200)), isPixelBlack(randInt(10, 60)));
+			} else if (rand === 2) {
+				sortPixelRowReverse(px, compareByBrightness, isPixelWhite(randInt(150, 200)), isPixelBlack(randInt(10, 60)));
+			} else if (rand === 3) {
+				sortPixelColumnReverse(px, compareByBrightness, isPixelWhite(randInt(150, 200)), isPixelBlack(randInt(10, 60)));
+			} else if (rand < 0) {
+				offsetChannels(px,
+					randInt(-5, 5), randInt(-5, 5),
+					randInt(-5, 5), randInt(-5, 5),
+					randInt(-5, 5), randInt(-5, 5));
+			}
+		}
+
+		putCanvasPixels(canvas, px);
+	}
+
+	function loadImageToCanvas(canvasId, imageSource) {
+		var image1 = new Image();
+		image1.onload = function () {
+			var c = document.getElementById(canvasId);
+			c.width = image1.width;
+			c.height = image1.height;
+			c.style.width = image1.width;
+			c.style.height = image1.height;
+
+			c.getContext("2d").drawImage(image1, 0, 0);
+		};
+		image1.src = imageSource;
+	}
+
+	loadImageToCanvas('image1', 'meme1.jpg');
+	loadImageToCanvas('image2', 'meme2.jpg');
+	loadImageToCanvas('image3', 'meme3.jpg');
+	//loadImageToCanvas('image4', 'meme4.jpg');
+	//loadImageToCanvas('image5', 'meme5.jpg');
+</script>
 </body>
