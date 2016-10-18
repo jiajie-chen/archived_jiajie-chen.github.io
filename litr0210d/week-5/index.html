@@ -1,6 +1,10 @@
 <head>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
+	<link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=VT323" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Abhaya+Libre" rel="stylesheet">
+
 	<style type="text/css">
 		.main-nav {
 			z-index: 999;
@@ -8,22 +12,22 @@
 			transform: translateX(calc(-100% - 20px));
 		}
 
+		#sidebar {
+			height: 100%;
+		}
+
 		.meme {
-			position: relative; 
-			width: 100%;
+			position: relative;
+			width:700px;
 		}
 
 		#meme-text-1 {
 			color: black;
 			text-shadow:
-				2px 0 #fff,
-				-2px 0 #fff,  
-				0 -2px #fff,
-				0 2px #fff,
-				2px 2px #fff,
-				-2px -2px #fff,  
-				2px -2px #fff,
-				-2px 2px #fff;
+				-1px -1px 0 #fff,  
+				 1px -1px 0 #fff,
+				-1px  1px 0 #fff,
+				 1px  1px 0 #fff;
 
 			position: absolute;
 			top: 90%;
@@ -32,6 +36,7 @@
 
 			text-align: center;
 			font-size: 24px;
+			font-family: 'Abhaya Libre', serif;
 		}
 
 		#meme-text-2-1 {
@@ -45,6 +50,7 @@
 
 			text-align: left;
 			font-size: 18px;
+			font-family: 'VT323', monospace;
 		}
 
 		#meme-text-2-2 {
@@ -58,19 +64,20 @@
 
 			text-align: left;
 			font-size: 18px;
+			font-family: 'VT323', monospace;
 		}
 
 		#meme-text-3 {
 			color: white;
 			text-shadow:
-				2px 0 #000,
-				-2px 0 #000,  
-				0 -2px #000,
-				0 2px #000,
-				2px 2px #000,
-				-2px -2px #000,  
-				2px -2px #000,
-				-2px 2px #000;
+				 2px 0 0 #000,
+				-2px 0 0 #000,  
+				 0 -2px 0 #000,
+				 0  2px 0 #000,
+				 2px  2px 0 #000,
+				-2px -2px 0 #000,
+				 2px -2px 0 #000,
+				-2px  2px 0 #000;
 
 			position: absolute;
 			top: 0;
@@ -79,6 +86,57 @@
 
 			text-align: left;
 			font-size: 120px;
+		}
+
+		#meme-text-4-1 {
+			color: black;
+			text-shadow:
+				-1px -1px 0 #fff,  
+				 1px -1px 0 #fff,
+				-1px  1px 0 #fff,
+				 1px  1px 0 #fff;
+
+			position: absolute;
+			top: 15%;
+			left: 3%;
+			width: 40%;
+
+			text-align: left;
+			font-size: 24px;
+		}
+
+		#meme-text-4-2 {
+			color: black;
+			text-shadow:
+				-1px -1px 0 #108dcd,  
+				 1px -1px 0 #108dcd,
+				-1px  1px 0 #108dcd,
+				 1px  1px 0 #108dcd;
+
+			position: absolute;
+			top: 65%;
+			left: 65%;
+			width: 40%;
+
+			text-align: left;
+			font-size: 24px;
+		}
+
+		#meme-text-5 {
+			background-color: rgba(255, 255, 255, 0.75);
+			color: #CC8899;
+
+			padding: 5px 5px;
+
+			position: absolute;
+			top: 10%;
+			left: 50%;
+			width: 80%;
+			transform: translateX(-50%);
+
+			text-align: center;
+			font-size: 35px;
+			font-family: 'Open Sans Condensed', sans-serif;
 		}
 	</style>
 </head>
@@ -96,25 +154,23 @@
 </div>
 
 <div class="container">
-	<div class="col-xs-3">
-		<div class="row">
-			<h1 class="text-center">House of Fragile Memes</h1>
-			<br/>
-			<h5 class="text-right">please don't touch</h5>
-			<br/>
-			<h5 class="text-left">caution: breaks easily</h5>
-		</div>
+	<div class="col-xs-3" id="sidebar">
+		<h1 class="text-center row">House of Fragile Memes</h1>
+		<br/>
+		<h5 class="text-right row">please don't touch</h5>
+		<br/>
+		<h5 class="text-left row">caution: breaks easily</h5>
 	</div>
 
 	<div class="col-xs-8 col-xs-offset-1">
-		<div class="meme row" id="meme1" onmousemove="datamosh('image1')" ontouch="datamosh('image1')">
+		<div class="meme" id="meme1" onmousemove="datamosh('image1')" ontouch="datamosh('image1')">
 			<canvas id="image1"></canvas>
 			<span id="meme-text-1">Archaeologist examines vintage 18th century meme, 1970</span>
 		</div>
 
 		<br/>
 
-		<div class="meme row" id="meme2" onmousemove="datamosh('image2')" ontouch="datamosh('image2')">
+		<div class="meme" id="meme2" onmousemove="datamosh('image2')" ontouch="datamosh('image2')">
 			<canvas id="image2"></canvas>
 			<span id="meme-text-2-1">you were so eager for the unknown, so determined to find perfection, you didn't realise it was unattainable</span>
 			<span id="meme-text-2-2">you asked for more than you needed, and ended up with nothing: your greediness resulted in your death</span>
@@ -122,21 +178,24 @@
 
 		<br/>
 
-		<div class="meme row" id="meme3" onmousemove="datamosh('image3')" ontouch="datamosh('image3')">
+		<div class="meme" id="meme3" onmousemove="datamosh('image3')" ontouch="datamosh('image3')">
 			<canvas id="image3"></canvas>
 			<span id="meme-text-3">SOCIAL MEDIA WAS A MISTAKE</span>
 		</div>
 
 		<br/>
 
-		<div class="meme row" id="meme4" onmousemove="datamosh('image4')" ontouch="datamosh('image4')">
+		<div class="meme" id="meme4" onmousemove="datamosh('image4')" ontouch="datamosh('image4')">
 			<canvas id="image4"></canvas>
+			<span id="meme-text-4-1">who are you?</span>
+			<span id="meme-text-4-2">i'm you but pupper</span>
 		</div>
 
 		<br/>
 
-		<div class="meme row" id="meme5" onmousemove="datamosh('image5')" ontouch="datamosh('image5')">
+		<div class="meme" id="meme5" onmousemove="datamosh('image5')" ontouch="datamosh('image5')">
 			<canvas id="image5"></canvas>
+			<span id="meme-text-5">Today begins and ends with gratitude and joy</span>
 		</div>
 	</div>
 </div>
@@ -463,7 +522,7 @@
 	loadImageToCanvas('image1', 'meme1.jpg');
 	loadImageToCanvas('image2', 'meme2.jpg');
 	loadImageToCanvas('image3', 'meme3.jpg');
-	//loadImageToCanvas('image4', 'meme4.jpg');
-	//loadImageToCanvas('image5', 'meme5.jpg');
+	loadImageToCanvas('image4', 'meme4.jpg');
+	loadImageToCanvas('image5', 'meme5.jpg');
 </script>
 </body>
