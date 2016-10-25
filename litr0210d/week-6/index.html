@@ -1,0 +1,125 @@
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <style type="text/css">
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <button class="btn btn-default" onclick="newWhoa()">I need memes</button>
+</div>
+
+<div class="container" id="main">
+</div>
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js" integrity="sha256-rMOSOM5HDzVEMoVZTv2189+RKSTSgY5ZKfTfap7q2zE=" crossorigin="anonymous"></script>
+<script src='https://code.responsivevoice.org/responsivevoice.js'></script>
+
+<script id="whoa-template" type="text/x-handlebars-template">
+    <div class="whoa-body row" id="whoa-body-{{rowId}}">
+        <div class="col-md-8">
+            <h4 class="row" id="line-1-row-{{rowId}}"></h4>
+            <h4 class="row" id="line-2-row-{{rowId}}"></h4>
+        </div>
+    </div>
+</script>
+
+<script type="text/javascript">
+    'use strict';
+
+    // globals
+    var whoaTemplate = Handlebars.compile($("#whoa-template").html());
+
+    var whoaAudio = new Audio("livin-on-a-prayer.mp3");
+    whoaAudio.volume = 0.5;
+
+    var whoaDuration1 = 2150;
+    var whoaDuration2 = 150;
+    var whoaDuration3 = 700;
+    var whoaDuration4 = 950;
+    var whoaDuration5 = 1300;
+
+    var whoaRhymes = [
+        "lizard on a chair",
+        "lemon and a pear",
+        "Donald Trump's hair",
+        "living in despair",
+        "lipstick on a pear",
+        "Untitled: Lamp/Bear",
+        "The Fresh Prince of Bel-air",
+        "wizard at a fair"
+    ];
+
+    var currRow = 0;
+
+    function rand_range(max) {
+        return Math.floor(Math.random() * (max + 1));
+    }
+
+    function fresh(array) {
+        var index = rand_range(array.length - 2) + 1, selection = array[index];
+        array[index] = array[0];
+        array[0] = selection;
+        return selection;
+    }
+
+    function typeText(insertId, string, totalTime) {
+        // create a promise for async
+        return new Promise(function(resolve, reject) {
+            console.log(insertId);
+            var dest = $(insertId);
+            var c = 0;
+            var speed = Math.floor(totalTime / string.length);
+            var i = setInterval(function () { // basically a while loop with a delay between each iteration
+                if (c >= string.length) {
+                    clearInterval(i);
+                    resolve(); // resolve promise at very end
+                } else {
+                    if (string[c] == "\n") {
+                        $("<br>").appendTo(dest);
+                    } else {
+                        dest.html(dest.html() + string[c]);
+                    }
+                    c += 1;
+                }
+            }, speed); // this is the delay in milliseconds between each character, increase to slow down, decrease to speed up
+        });
+    };
+
+    function sayText(string, voice) {
+        // create a promise for responsive voice
+        return new Promise(function(resolve, reject) {
+            responsiveVoice.speak(string, voice, {"pitch": 1.5, "onend": resolve});
+        });
+    }
+
+    function newWhoa() {
+        // append new template
+        $("#main").prepend(whoaTemplate({
+            'rowId': currRow
+        }));
+
+        var lineId1 = "#line-1-row-"+currRow;
+        var lineId2 = "#line-2-row-"+currRow;
+        var rhyme = fresh(whoaRhymes);
+
+        // begin playing audio
+        whoaAudio.play();
+        typeText(lineId1, "Whoooooooooooaaaaa, ", whoaDuration1)
+        .then(() => typeText(lineId1, "we're ", whoaDuration2))
+        .then(() => typeText(lineId1, "halfway ", whoaDuration3))
+        .then(() => typeText(lineId1, "there", whoaDuration4))
+        .then(() => typeText(lineId2, "Whoa-oh, ", whoaDuration5))
+        .then(() => {
+            $(lineId2).append(rhyme);
+            sayText(rhyme, "UK English Male");
+        });
+
+        currRow++;
+    }
+</script>
+</body>
