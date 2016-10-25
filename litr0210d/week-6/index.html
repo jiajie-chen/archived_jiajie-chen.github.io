@@ -2,13 +2,21 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
     <style type="text/css">
+        .header {
+            margin-top: 40px;
+            margin-bottom: 40px;
+        }
+
+        .whoa-img {
+            height: 400px;
+        }
     </style>
 </head>
 
 <body>
 
-<div class="container">
-    <button class="btn btn-default" id="newWhoa" onclick="newWhoa()">I need memes</button>
+<div class="container header">
+    <button class="btn btn-default btn-lg" id="newWhoa" onclick="newWhoa()">Serenade me, Bon Jovi!</button>
 </div>
 
 <div class="container" id="main">
@@ -21,12 +29,13 @@
 
 <script id="whoa-template" type="text/x-handlebars-template">
     <div class="whoa-body row" id="{{rowId}}">
-        <div class="col-md-8">
+        <div class="col-md-12">
             <h4 class="row" id="{{lineId1}}"></h4>
             <h4 class="row" id="{{lineId2}}"></h4>
-        </div>
-        <div class="col-md-4">
-            <img id="{{imageId}}"" src="{{imageSrc}}" hidden />
+
+            <div id="{{imageId}}" class="collapse">
+                <img class="whoa-img img-responsive" src="{{imageSrc}}" />
+            </div>
         </div>
     </div>
 </script>
@@ -51,14 +60,12 @@
         ["lemon and a pear", "images/lemon.jpg"],
         ["Untitled: Lamp/Bear", "images/lamp-bear.jpg"],
         ["Donald Trump's hair", "images/trump.jpg"],
-        ["living in despair", "images/despair.jpg"],
-        ["lipstick on a pear", "images/lipstick.jpg"],
         ["The Fresh Prince of Bel-air", "images/bel-air.jpg"],
         ["wizard at a fair", "images/wizard.jpg"],
-        ["kitten on the stairs", "images/kitten.jpg"],
+        ["kittens on the stairs", "images/kitten.jpg"],
         ["The Tortoise and the Hare", "images/hare.jpg"],
         ["bird in the air", "images/air.jpg"],
-        ["Trespassers Beware", "images/beware.jpg"],
+        ["trespassers beware", "images/beware.jpg"],
         ["Candide by Voltaire", "images/voltaire.jpg"],
         ["princess is elsewhere", "images/princess.jpg"]
     ];
@@ -101,7 +108,7 @@
     function sayText(string, voice) {
         // create a promise for responsive voice
         return new Promise(function(resolve, reject) {
-            responsiveVoice.speak(string, voice, {"pitch": 1.5, "onend": resolve});
+            responsiveVoice.speak(string, voice, {"pitch": 2, "onend": resolve});
         });
     }
 
@@ -142,10 +149,10 @@
         .then(() => typeText(lineId2, "Whoa-oh, ", whoaDuration5))
         .then(() => {
             $(lineId2).append(rhyme);
-            sayText(rhyme, "UK English Male");
+            return sayText(rhyme, "UK English Male");
         })
         .then(() => {
-            $(imageId).prop("hidden", false);
+            $(imageId).collapse('show');
             $("#newWhoa").prop("disabled",false);
         });
 
