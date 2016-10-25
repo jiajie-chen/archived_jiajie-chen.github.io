@@ -8,7 +8,7 @@
 <body>
 
 <div class="container">
-    <button class="btn btn-default" onclick="newWhoa()">I need memes</button>
+    <button class="btn btn-default" id="newWhoa" onclick="newWhoa()">I need memes</button>
 </div>
 
 <div class="container" id="main">
@@ -20,10 +20,13 @@
 <script src='https://code.responsivevoice.org/responsivevoice.js'></script>
 
 <script id="whoa-template" type="text/x-handlebars-template">
-    <div class="whoa-body row" id="whoa-body-{{rowId}}">
+    <div class="whoa-body row" id="{{rowId}}">
         <div class="col-md-8">
-            <h4 class="row" id="line-1-row-{{rowId}}"></h4>
-            <h4 class="row" id="line-2-row-{{rowId}}"></h4>
+            <h4 class="row" id="{{lineId1}}"></h4>
+            <h4 class="row" id="{{lineId2}}"></h4>
+        </div>
+        <div class="col-md-4">
+            <img id="{{imageId}}"" src="{{imageSrc}}" hidden />
         </div>
     </div>
 </script>
@@ -39,19 +42,25 @@
 
     var whoaDuration1 = 2150;
     var whoaDuration2 = 150;
-    var whoaDuration3 = 700;
+    var whoaDuration3 = 670;
     var whoaDuration4 = 950;
     var whoaDuration5 = 1300;
 
     var whoaRhymes = [
-        "lizard on a chair",
-        "lemon and a pear",
-        "Donald Trump's hair",
-        "living in despair",
-        "lipstick on a pear",
-        "Untitled: Lamp/Bear",
-        "The Fresh Prince of Bel-air",
-        "wizard at a fair"
+        ["lizard on a chair", "images/lizard.jpg"],
+        ["lemon and a pear", "images/lemon.jpg"],
+        ["Untitled: Lamp/Bear", "images/lamp-bear.jpg"],
+        ["Donald Trump's hair", "images/trump.jpg"],
+        ["living in despair", "images/despair.jpg"],
+        ["lipstick on a pear", "images/lipstick.jpg"],
+        ["The Fresh Prince of Bel-air", "images/bel-air.jpg"],
+        ["wizard at a fair", "images/wizard.jpg"],
+        ["kitten on the stairs", "images/kitten.jpg"],
+        ["The Tortoise and the Hare", "images/hare.jpg"],
+        ["bird in the air", "images/air.jpg"],
+        ["Trespassers Beware", "images/beware.jpg"],
+        ["Candide by Voltaire", "images/voltaire.jpg"],
+        ["princess is elsewhere", "images/princess.jpg"]
     ];
 
     var currRow = 0;
@@ -70,7 +79,6 @@
     function typeText(insertId, string, totalTime) {
         // create a promise for async
         return new Promise(function(resolve, reject) {
-            console.log(insertId);
             var dest = $(insertId);
             var c = 0;
             var speed = Math.floor(totalTime / string.length);
@@ -98,14 +106,32 @@
     }
 
     function newWhoa() {
+        $("#newWhoa").prop("disabled",true);
+
+        var lineId1 = "line-1-row-"+currRow;
+        var lineId2 = "line-2-row-"+currRow;
+        var imageId = "image-row-"+currRow;
+        var rhymePair;
+        if (currRow < whoaRhymes.length) {
+            rhymePair = whoaRhymes[currRow % whoaRhymes.length]
+        } else {
+           rhymePair = fresh(whoaRhymes);
+        }
+        var rhyme = rhymePair[0];
+        var rhymeImg = rhymePair[1];
+
         // append new template
         $("#main").prepend(whoaTemplate({
-            'rowId': currRow
+            'rowId': "whoa-body-"+currRow,
+            'lineId1': lineId1,
+            'lineId2': lineId2,
+            'imageId': imageId,
+            'imageSrc': rhymeImg
         }));
 
-        var lineId1 = "#line-1-row-"+currRow;
-        var lineId2 = "#line-2-row-"+currRow;
-        var rhyme = fresh(whoaRhymes);
+        lineId1 = "#"+lineId1;
+        lineId2 = "#"+lineId2;
+        imageId = "#"+imageId;
 
         // begin playing audio
         whoaAudio.play();
@@ -117,6 +143,10 @@
         .then(() => {
             $(lineId2).append(rhyme);
             sayText(rhyme, "UK English Male");
+        })
+        .then(() => {
+            $(imageId).prop("hidden", false);
+            $("#newWhoa").prop("disabled",false);
         });
 
         currRow++;
