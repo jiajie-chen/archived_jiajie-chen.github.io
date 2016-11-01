@@ -1,0 +1,160 @@
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <style type="text/css">
+        #main {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container" id="main">
+
+    <h1>I'm an All Star</h1>
+
+    <p>Press (d) and (f) to change speeds</p>
+    <p>Press (a) to pause All Star and (s) to mute</p>
+    <br />
+    <p>Press (u), (i), (o), (p), (h), (j), (k), (l), (;) to playback sounds</p>
+    <p>Press (space) and one of the above to play more sounds</p>
+
+</div>
+
+<script src="../lib/mousetrap.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+
+<script type="text/javascript">
+    'use strict';
+
+    // globals
+
+    var altKey = 'space';
+
+    var believerMap = {
+        'mainKeys' : {
+            'u' : 'audio/believer-in-fairy-tales.mp3',
+            'i' : 'audio/believer-get-is-pain.mp3',
+            'o' : 'audio/believer-horn.mp3',
+            'p' : 'audio/believer-guitar.mp3',
+
+            'j' : 'audio/believer-to-get-me.mp3',
+            'k' : 'audio/believer-saw-her-face.mp3',
+            'l' : 'audio/believer-doubt-in-my-mind.mp3',
+            ';' : 'audio/believer-im-in-love.mp3',
+
+            'h' : 'audio/believer-disappointment.mp3'
+        },
+        'altKeys' : {
+            'u' : 'audio/believer-a-giving-thing.mp3',
+            'i' : 'audio/believer-i-got-rain.mp3',
+            'o' : 'audio/believer-ooh.mp3',
+            'p' : 'audio/believer-jingle.mp3',
+
+            'j' : 'audio/believer-use-in-trying.mp3',
+            'k' : 'audio/believer-now-im-a-believer.mp3',
+            'l' : 'audio/believer-if-i-tried.mp3',
+            ';' : 'audio/believer-im-a-believer.mp3',
+
+            'h' : 'audio/believer-yeah-yeah-yeah.mp3'
+        }
+    };
+
+    var altKeyDown = false;
+
+    var allstarAudio = new Audio("audio/all-star.mp3");
+    allstarAudio.volume = 0.75;
+
+    function loadAudio(keyMap) {
+        var audioMap = {};
+
+        Object.keys(keyMap).forEach(function(key) {
+            var src = keyMap[key];
+            var audio = new Audio(src);
+            audioMap[key] = audio;
+        });
+
+        return audioMap;
+    }
+
+    var believerSoundboard = {
+        'mainKeys' : loadAudio(believerMap.mainKeys),
+        'altKeys' : loadAudio(believerMap.altKeys)
+    };
+
+    function clearAudio(audioMap) {
+        Object.keys(audioMap).forEach(function(key) {
+            var audio = audioMap[key];
+
+            audio.pause();
+            audio.currentTime = 0;
+        });
+    }
+
+    function clearSoundboard(soundboard) {
+        clearAudio(soundboard.mainKeys);
+        clearAudio(soundboard.altKeys);
+    }
+
+    function playAudio(audioObj, soundboard) {
+        clearSoundboard(soundboard);
+
+        audioObj.currentTime = 0;
+        audioObj.playbackRate = allstarAudio.playbackRate;
+        audioObj.play();
+    }
+
+    function bindKeys(soundboard) {
+        var audioMap = soundboard.mainKeys;
+        var altMap = soundboard.altKeys;
+
+        Object.keys(audioMap).forEach(function(key) {
+            Mousetrap.bind(key, function(e) {
+                if (altKeyDown) {
+                    playAudio(altMap[key], soundboard);
+                } else {
+                    playAudio(audioMap[key], soundboard);
+                }
+            });
+        });
+    }
+
+    Mousetrap.bind('d', function(e) {
+        var rate = allstarAudio.playbackRate;
+        rate -= 0.1;
+        rate = Math.max(0.5, rate);
+        allstarAudio.playbackRate = rate;
+    });
+    Mousetrap.bind('f', function(e) {
+        var rate = allstarAudio.playbackRate;
+        rate += 0.1;
+        rate = Math.min(3.0, rate);
+        allstarAudio.playbackRate = rate;
+    });
+    Mousetrap.bind('a', function(e) {
+        if (allstarAudio.paused == false) {
+            allstarAudio.pause();
+        } else {
+            allstarAudio.play();
+        }
+    });
+    Mousetrap.bind('s', function(e) {
+        allstarAudio.volume = 0;
+    }, 'keydown');
+    Mousetrap.bind('s', function(e) {
+        allstarAudio.volume = 1;
+    }, 'keyup');
+    allstarAudio.loop = true;
+
+    // bindings
+    bindKeys(believerSoundboard);
+
+    Mousetrap.bind(altKey, function(e) {
+        altKeyDown = true;
+    }, 'keydown');
+    Mousetrap.bind(altKey, function(e) {
+        altKeyDown = false;
+    }, 'keyup');
+
+</script>
+</body>
