@@ -1,0 +1,206 @@
+<head>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300" rel="stylesheet">
+
+    <style type="text/css">
+        body {
+            background-color: #005a9c;
+        }
+
+        main {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        #loading {
+            text-align: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .loading-img {
+            margin: 10px;
+        }
+
+        .loading-text {
+            font-family: 'Open Sans', sans-serif;
+            color: #fff;
+            font-size: 17pt;
+            letter-spacing: 1px;
+
+            margin: 3px;
+        }
+    </style>
+</head>
+
+<body>
+<main>
+    <div id="loading">
+        <img class="loading-img" src="loading_circle.gif" />
+        <h3 class="loading-text">Configuring update for Windows</h3>
+        <h3 class="loading-text" id="percentage">0% complete</h3>
+        <h3 class="loading-text" id="message">Do not turn off your computer</h3>
+    </div>
+</main>
+
+<script src="../lib/mousetrap.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+
+<script type="text/javascript">
+    "use strict";
+
+    var loadingTimer;
+    var messageTimer;
+    var loadingPercent = 0;
+
+    function introGen() {
+        return "Do not turn off your computer";
+    }
+
+    var totalUpdates = Math.ceil((Math.random() * 10000) + 10000);
+    function updatesGen() {
+        var curUpdate = Math.ceil(totalUpdates * (loadingPercent / 100));
+        return "Installing update " + curUpdate + " of " + totalUpdates;
+    }
+
+    var detailMsg = [
+        "Loading new security patches",
+        "Locating update directories",
+        "Calculating final disk space",
+        "Installing updated drivers",
+        "Determining update dependencies"];
+    function detailsGen() {
+        return fresh(detailMsg);
+    }
+
+    var utilMsg = [
+        "Scanning drives for faults",
+        "Defragmenting harddrive",
+        "Repairing boot record",
+        "Recovering registry hive",
+        "Cleaning up temporary files"];
+    function utilGen() {
+        return fresh(utilMsg);
+    }
+
+    var existMsg1 = [
+        "What are these updates for?",
+        "Why install these updates?",
+        "What will these updates do?",
+        "Will these updates matter?",
+        "Who uses these updates?"];
+    function existGen1() {
+        return fresh(existMsg1);
+    }
+
+    var existMsg2 = [
+        "Is this it?",
+        "What else is there?",
+        "What happens next?",
+        "Was it worth it?",
+        "Why would you do this?",
+        "What's the point of waiting?"];
+    function existGen2() {
+        return fresh(existMsg2);
+    }
+
+    var existMsg3 = [
+        "It's close, isn't it?",
+        "It's approaching.",
+        "What is going to happen after?",
+        "Where do we go from here?",
+        "What happens if there's more?"];
+    function existGen3() {
+        return fresh(existMsg3);
+    }
+
+    var endingMsg = [
+        "This is the end.",
+        "It's here.",
+        "Finally.",
+        "It's done.",
+        "No more waiting.",
+        "Everything has been taken care of."];
+    function endingGen() {
+        return fresh(endingMsg);
+    }
+
+    function fresh(array) {
+        var index = Math.floor(Math.random() * array.length);
+        return array[index];
+    }
+
+    function getGenerators() {
+        if (loadingPercent < 5) {
+            return [introGen];
+        } else if (loadingPercent < 10) {
+            return [introGen, updatesGen];
+        } else if (loadingPercent < 20) {
+            return [introGen, updatesGen, detailsGen];
+        } else if (loadingPercent < 30) {
+            return [updatesGen, detailsGen, utilGen, existGen1];
+        } else if (loadingPercent < 50) {
+            return [updatesGen, detailsGen, utilGen, existGen1, existGen2];
+        } else if (loadingPercent < 65) {
+            return [updatesGen, detailsGen, existGen1, existGen2];
+        } else if (loadingPercent < 80) {
+            return [updatesGen, detailsGen, existGen2, existGen2];
+        } else if (loadingPercent < 95) {
+            return [updatesGen, existGen2, existGen3];
+        }
+        return [introGen, endingGen];
+    }
+
+    function incrementLoad() {
+        if (loadingPercent >= 100) {
+            stopTimers();
+            return;
+        }
+
+        loadingPercent += 1;
+        $("#percentage").text(""+loadingPercent+"% complete");
+
+        loadingTimer = randomTimer(16000, 2000, incrementLoad);
+    }
+
+    function incrementMessage() {
+        if (loadingPercent >= 100) {
+            stopTimers();
+            return;
+        }
+
+        var generatorPool = getGenerators();
+        var gen = fresh(generatorPool);
+        $("#message").text(gen());
+
+        messageTimer = randomTimer(1000, 2000, incrementMessage);
+    }
+
+    function randomTimer(min, jitter, callback) {
+        var randTimeout = Math.ceil((Math.random() * jitter) + min);
+
+        return setTimeout(() => {
+            callback();
+        }, randTimeout);
+    }
+
+    function stopTimers() {
+        clearTimeout(loadingTimer);
+        clearTimeout(messageTimer);
+    }
+
+    function initTimers() {
+        incrementLoad();
+        incrementMessage();
+    }
+
+    Mousetrap.bind("space", function(e) {
+        stopTimers();
+        initTimers();
+    });
+
+    initTimers();
+</script>
+</body>
