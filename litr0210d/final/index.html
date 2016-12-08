@@ -14,6 +14,13 @@
 
         #loading {
             text-align: center;
+        }
+
+        #bluescreen {
+            text-align: left;
+        }
+
+        .centered {
             position: absolute;
             top: 50%;
             left: 50%;
@@ -24,27 +31,51 @@
             margin: 10px;
         }
 
-        .loading-text {
+        h1 {
+            font-size: 120pt;
+            margin: 10px;
+        }
+
+        h3 {
+            font-size: 17pt;
+            margin: 3px;
+        }
+
+        h5 {
+            font-size: 12pt;
+            margin: 3px;
+        }
+
+        .windows-text {
             font-family: 'Open Sans', sans-serif;
             color: #fff;
-            font-size: 17pt;
+            
             letter-spacing: 1px;
-
-            margin: 3px;
         }
     </style>
 </head>
 
 <body>
 <main>
-    <div id="loading">
+    <div id="loading" class="centered">
         <img class="loading-img" src="loading_circle.gif" />
-        <h3 class="loading-text">Configuring update for Windows</h3>
-        <h3 class="loading-text" id="percentage">0% complete</h3>
-        <h3 class="loading-text" id="message">Do not turn off your computer</h3>
+        <h3 class="windows-text">Configuring update for Windows</h3>
+        <h3 class="windows-text" id="percentage">0% complete</h3>
+        <h3 class="windows-text" id="message">Do not turn off your computer</h3>
+    </div>
+    <div id="bluescreen" class="centered" hidden>
+        <h1 class="windows-text">:(</h1>
+
+        <h3 class="windows-text">Your computer ran into some issues and needs to restart. We're just</h3>
+        <h3 class="windows-text">collecting some error info, and then we'll restart for you. (0%</h3>
+        <h3 class="windows-text">complete)</h3>
+        <br/>
+        <br/>
+        <h5 class="windows-text">Perhaps the real treasure were the updates made along the way</h5>
     </div>
 </main>
 
+<script src="../lib/tracery.js"></script>
 <script src="../lib/mousetrap.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
 
@@ -54,6 +85,32 @@
     var loadingTimer;
     var messageTimer;
     var loadingPercent = 0;
+
+    var grammarObj = {
+        "detailMsg": ["#detailVerb.capitalize# #detailItem#"],
+        "detailVerb": ["locating", "installing", "finding", "allocating", "downloading", "loading"],
+        "detailItem": ["more RAM", "updates", "bloatware", "security patches", "advertisements", "update dependencies", "user settings", "user accounts"],
+
+        "utilMsg": ["#utilVerb.capitalize# #utilItem#"],
+        "utilVerb": ["scanning", "defragmenting", "repairing", "recovering", "cleaning up", "compressing"],
+        "utilItem": ["boot record", "hard drive", "registry hive", "temporary files", "installation directory", "user profiles", "system32"],
+
+        "existMsg1": ["I bet you really want to use me", "I hope you saved your work before updating", "Wow, this suuure is taking a long time", "The longer you stare at my screen, the longer this takes", "Estimated time remaining: #time#"],
+        "time": ["4 hours and 20 minutes", "84 seconds", "1 second", "38 hours and 7 minutes", "1 minute and 37 seconds", "1 year and 92 days"],
+
+        "existMsg2": ["#useComputer#", "#useComputer#", "#useComputer#", "#advertise#"],
+        "useComputer": ["Desperately want to #usage#? Too bad.", "I'm more than just a machine to #usage#", "Decades of innovation, all so you can #usage#"],
+        "usage": ["browse Facebook", "tweet your breakfast", "finish your overdue paper", "start flamewars on Reddit", "make memes", "laugh at cats on the internet", "take Buzzfeed quizzes"],
+        "advertise": ["Buy a new #windowsProduct# today!", "Drink verification can to continue", "#windowsProduct.capitalize#: #promotion#"],
+        "windowsProduct": ["Xbox One", "Surface Pro", "copy of Windows 10", "Zune", "Macbook Pro", "Kinect"],
+        "promotion": ["out now!", "for a limited time only", "now in the Windows Store", "now on sale!"],
+
+        "existMsg3": ["Installing the actually critical update", "Windows 10 Update Prank (gone wrong)", "Remember to take a break from updating every 5 minutes", "Update notes: #note#"],
+        "note": ["replaced Cortana with Clippy", "slowed updates by 20% according to market research", "shifted start menu by 1 pixel", "added new fonts to Word", "made user data collection mandatory", "optimized Notepad.exe", "removed Minesweeper"],
+
+        "endingMsg": ["I hope these updates mean something to you", "Do you even use these updates?", "We apologize for the inconvenience", "Wouldn't it be awful if I crashed right now?", "Welcome to the end", "Congratulations!"]  
+    };
+    var grammar = tracery.createGrammar(grammarObj);
 
     function introGen() {
         return "Do not turn off your computer";
@@ -65,66 +122,28 @@
         return "Installing update " + curUpdate + " of " + totalUpdates;
     }
 
-    var detailMsg = [
-        "Loading new security patches",
-        "Locating update directories",
-        "Calculating final disk space",
-        "Installing updated drivers",
-        "Determining update dependencies"];
     function detailsGen() {
-        return fresh(detailMsg);
+        return grammar.flatten("#detailMsg#");
     }
 
-    var utilMsg = [
-        "Scanning drives for faults",
-        "Defragmenting harddrive",
-        "Repairing boot record",
-        "Recovering registry hive",
-        "Cleaning up temporary files"];
     function utilGen() {
-        return fresh(utilMsg);
+        return grammar.flatten("#utilMsg#");
     }
 
-    var existMsg1 = [
-        "What are these updates for?",
-        "Why install these updates?",
-        "What will these updates do?",
-        "Will these updates matter?",
-        "Who uses these updates?"];
     function existGen1() {
-        return fresh(existMsg1);
+        return grammar.flatten("#existMsg1#");
     }
 
-    var existMsg2 = [
-        "Is this it?",
-        "What else is there?",
-        "What happens next?",
-        "Was it worth it?",
-        "Why would you do this?",
-        "What's the point of waiting?"];
     function existGen2() {
-        return fresh(existMsg2);
+        return grammar.flatten("#existMsg2#");
     }
 
-    var existMsg3 = [
-        "It's close, isn't it?",
-        "It's approaching.",
-        "What is going to happen after?",
-        "Where do we go from here?",
-        "What happens if there's more?"];
     function existGen3() {
-        return fresh(existMsg3);
+        return grammar.flatten("#existMsg3#");
     }
 
-    var endingMsg = [
-        "This is the end.",
-        "It's here.",
-        "Finally.",
-        "It's done.",
-        "No more waiting.",
-        "Everything has been taken care of."];
     function endingGen() {
-        return fresh(endingMsg);
+        return grammar.flatten("#endingMsg#");
     }
 
     function fresh(array) {
@@ -168,6 +187,8 @@
     function incrementMessage() {
         if (loadingPercent >= 100) {
             stopTimers();
+            $("#loading").hide();
+            $("#bluescreen").show();
             return;
         }
 
